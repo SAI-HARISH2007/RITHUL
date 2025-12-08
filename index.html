@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>For Chinni 💌</title>
+  <meta name="theme-color" content="#ff6ea6" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{ --bg1:#ffe5f0; --bg2:#fffafc; --ink:#222; --muted:#5b5b5b; --accent:#ff6ea6; --accent2:#845ef7; --card:#ffffffb0; --ring:#ffd1e1; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0; font-family:Poppins, ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; color:var(--ink);
+      background:
+        radial-gradient(1200px 800px at 80% -10%, var(--bg1), transparent),
+        radial-gradient(1200px 800px at -10% 110%, var(--ring), transparent),
+        linear-gradient(180deg, var(--bg2), #fff);
+      overflow-x:hidden;}
+
+    .hearts{position:fixed; inset:0; pointer-events:none; overflow:hidden}
+    .heart{position:absolute; opacity:.25; animation: floatUp 12s linear infinite;}
+    @keyframes floatUp{from{transform:translateY(100vh) scale(.9) rotate(0)} to{transform:translateY(-20vh) scale(1.2) rotate(360deg)}}
+
+    .wrap{max-width:960px; margin:0 auto; padding:24px}
+
+    header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 20px; backdrop-filter: blur(6px); background:var(--card); border:1px solid #fff; border-radius:22px; box-shadow:0 10px 30px #ff6ea61a; animation: slideDown 0.8s ease-out;}
+    @keyframes slideDown{from{opacity:0; transform:translateY(-30px)} to{opacity:1; transform:translateY(0)}}
+    
+    .brand{display:flex; align-items:center; gap:12px}
+    .logo{width:42px; height:42px; border-radius:12px; display:grid; place-items:center; background:conic-gradient(from 180deg, var(--accent), var(--accent2)); color:white; font-weight:800; animation: spin 20s linear infinite;}
+    @keyframes spin{from{transform:rotate(0deg)} to{transform:rotate(360deg)}}
+    
+    .badge{font-size:12px; padding:6px 10px; border-radius:999px; background:#00000008; animation: pulse 2s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{opacity:1} 50%{opacity:0.7}}
+
+    .hero{margin:24px 0; padding:30px; display:grid; gap:18px; background:linear-gradient(180deg,#ffffffcc,#fff); border:1px solid #fff; border-radius:26px; box-shadow:0 40px 80px #845ef70f}
+    h1{font-size: clamp(28px, 5vw, 44px); line-height:1.05; margin:0; opacity:0; transition: opacity 1s ease-in-out;}
+    h1.visible{opacity:1}
+    h1.fadeout{opacity:0; transition: opacity 1.5s ease-in-out}
+    .lead{font-size:clamp(15px,2.2vw,18px); color:var(--muted); margin:0; transition:opacity 1.5s ease-in-out; opacity:0}
+    .lead.visible{opacity:1}
+
+    .card{padding:20px; border-radius:18px; border:1px solid #fff; background:#ffffffb8; box-shadow:0 20px 50px #0000000a; opacity:0; transition:opacity 1.5s ease-in-out, transform 0.3s ease;}
+    .card.visible{opacity:1}
+    .card:hover{transform:translateY(-5px); box-shadow:0 30px 60px #0000001a}
+    
+    .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
+    .chip{padding:8px 12px; border-radius:999px; background:#00000006; font-size:14px; transition: all 0.3s ease;}
+    .chip:hover{background:#00000015; transform:scale(1.05)}
+
+    .btn{appearance:none; border:0; border-radius:16px; padding:14px 18px; font-weight:700; cursor:pointer; transition:.18s transform ease, .25s box-shadow; background:linear-gradient(180deg, var(--accent), #ff3d83); color:white; box-shadow:0 10px 20px #ff6ea644; position:relative; overflow:hidden;}
+    .btn::before{content:''; position:absolute; top:50%; left:50%; width:0; height:0; border-radius:50%; background:rgba(255,255,255,0.3); transform:translate(-50%,-50%); transition:width 0.6s, height 0.6s;}
+    .btn:hover::before{width:300px; height:300px;}
+    .btn:hover{transform:translateY(-2px); box-shadow:0 15px 30px #ff6ea666}
+    .btn:active{transform:translateY(0)}
+    .btn.secondary{background:#0000000a; color:#333; box-shadow:none; border:1px solid #eee}
+
+    dialog{border:none; border-radius:20px; width:min(560px,94vw); padding:0; box-shadow:0 30px 80px #00000022; background:#fff; animation: modalIn 0.4s ease-out;}
+    @keyframes modalIn{from{opacity:0; transform:scale(0.9)} to{opacity:1; transform:scale(1)}}
+    dialog::backdrop{background: radial-gradient(1200px 600px at 50% 10%, #00000040, #00000090); animation: backdropIn 0.3s ease-out;}
+    @keyframes backdropIn{from{opacity:0} to{opacity:1}}
+    
+    .modal{padding:22px}
+    .modal h3{margin:0 0 8px 0}
+    .grid{display:grid; gap:12px}
+    .field{display:grid; gap:6px}
+    .field input,.field textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid #ececec; font:inherit; transition: all 0.3s ease;}
+    .field input:focus,.field textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px #ff6ea622}
+
+    .success{display:none; text-align:center; padding:40px 16px}
+    .success h2{font-size:clamp(26px,4vw,40px); margin:0 0 8px}
+    .success p{margin:0}
+
+
+
+    footer{margin:30px 0 10px; text-align:center; color:#777; font-size:13px}
+    .tiny{opacity:.7}
+
+    @media (max-width:640px){ header{padding:14px} .hero{padding:22px} .row{gap:8px} .btn{width:100%} .interaction-tracker{bottom:10px; right:10px; font-size:11px; padding:8px 12px}}
+  </style>
+</head>
+<body>
+  <div class="hearts" aria-hidden="true" id="hearts"></div>
+
+    <header>
+      <div class="brand">
+        <div class="logo">💗</div>
+        <h2>My Dearest <span id="herName">Chinni</span></h2>
+      </div>
+      <div class="badge">From your <strong>Nani</strong> 💞</div>
+    </header>
+
+    <section class="hero">
+      <h1 id="typewriter"></h1>
+      <p class="lead">Every moment without you feels like an eternity. I miss your smile and your laugh. Can we meet soon?</p>
+
+      <div class="card">
+        <div class="row" style="margin-bottom:14px">
+          <span class="chip">🌸 Soft & sweet</span>
+          <span class="chip">🎈 Little surprise</span>
+          <span class="chip">📍 Pick a place</span>
+          <span class="chip">📅 Choose a time</span>
+        </div>
+        <div class="row">
+          <button class="btn" id="yesBtn">Yes, let's meet!</button>
+          <button class="btn secondary runaway" id="noBtn">Not right now</button>
+        </div>
+      </div>
+      <small class="tiny">With love — always from your Nani 💖</small>
+    </section>
+
+    <footer>
+      <div>© <span id="year"></span> From Nani to Chinni · With kindness and cookies 🍪</div>
+    </footer>
+  </div>
+
+
+  <dialog id="invite">
+    <div class="modal">
+      <form method="dialog" class="grid" id="inviteForm">
+        <h3>Pick the plan 💫</h3>
+        <div class="grid">
+          <label class="field">
+            <span>Where should we meet?</span>
+            <input id="place" placeholder="e.g., the café near school" required />
+          </label>
+          <label class="field">
+            <span>When works for you?</span>
+            <input id="when" type="datetime-local" required />
+          </label>
+          <label class="field">
+            <span>Optional note</span>
+            <textarea id="note" rows="3" placeholder="I miss you ☺️"></textarea>
+          </label>
+        </div>
+        <div class="row" style="justify-content:flex-end; gap:8px">
+          <button class="btn secondary" value="cancel">Cancel</button>
+          <button class="btn" id="confirmBtn" value="default">Send invite</button>
+        </div>
+      </form>
+
+      <div class="success" id="success">
+        <h2>Yay! See you soon 🎉</h2>
+        <p id="plan"></p>
+        <p><a id="maps" href="#" target="_blank" rel="noreferrer noopener">Open in Maps</a></p>
+        <div class="row" style="justify-content:center">
+          <button class="btn secondary" id="closeSuccess">Close</button>
+        </div>
+      </div>
+    </div>
+  </dialog>
+
+  <canvas id="confetti" style="position:fixed; inset:0; pointer-events:none; display:none"></canvas>
+
+  <!-- Soft music -->
+  <audio id="fadeSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4a9e4c548a.mp3?filename=soft-piano-melody-10911.mp3" preload="auto" loop></audio>
+
+  <script>
+    const HER_NAME = "Chinni";
+    const YOUR_EMAIL = "saiharishanand2007@gmail.com";
+    const API_ENDPOINT = "send_email.php"; // Place PHP file in same directory
+    
+    const LINES = [
+      `Heyy, ${HER_NAME} ✨`,
+      "I miss you soo much.",
+      "Can we meet soon? 💗"
+    ];
+
+    const $ = (s)=>document.querySelector(s);
+    const pause = (ms)=> new Promise(r=>setTimeout(r, ms));
+
+    // Analytics tracking
+    let analytics = {
+      clicks: 0,
+      hovers: 0,
+      startTime: Date.now(),
+      interactions: []
+    };
+
+    function trackInteraction(type, detail = '') {
+      analytics.interactions.push({
+        type,
+        detail,
+        timestamp: new Date().toISOString()
+      });
+      
+      if (type === 'click') {
+        analytics.clicks++;
+      } else if (type === 'hover') {
+        analytics.hovers++;
+      }
+    }
+
+    // Update timer silently
+    setInterval(() => {
+      const seconds = Math.floor((Date.now() - analytics.startTime) / 1000);
+    }, 1000);
+
+    function showNotification(message, isError = false) {
+      // Silently track - no visible notification
+    }
+
+    // Send visit notification
+    async function sendVisitNotification() {
+      const screenInfo = {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        screenWidth: window.screen.width,
+        screenHeight: window.screen.height,
+        userAgent: navigator.userAgent,
+        timestamp: new Date().toLocaleString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+      };
+
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'visit',
+            screenWidth: screenInfo.width,
+            screenHeight: screenInfo.height,
+            deviceWidth: screenInfo.screenWidth,
+            deviceHeight: screenInfo.screenHeight,
+            userAgent: screenInfo.userAgent,
+            timestamp: screenInfo.timestamp,
+            timezone: screenInfo.timezone
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          console.log('✅ Visit notification sent!');
+        } else {
+          console.log('Email error:', data.message);
+        }
+      } catch (error) {
+        console.log('Failed to send notification:', error);
+      }
+    }
+
+    // Send meeting response
+    async function sendMeetingResponse(place, when, note) {
+      try {
+        const response = await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: 'meeting',
+            place: place,
+            when: new Date(when).toLocaleString(),
+            note: note,
+            clicks: analytics.clicks,
+            hovers: analytics.hovers,
+            timeSpent: Math.floor((Date.now() - analytics.startTime) / 1000),
+            screenSize: `${window.innerWidth}x${window.innerHeight}`,
+            userAgent: navigator.userAgent
+          })
+        });
+
+        const data = await response.json();
+        
+        if (data.success) {
+          console.log('✅ Meeting response sent!');
+        } else {
+          console.log('Email error:', data.message);
+        }
+      } catch (error) {
+        console.log('Failed to send meeting response:', error);
+      }
+    }
+
+    function spawnHearts(){
+      const container = $('#hearts');
+      const symbols = ['❤','💗','💖','💘','💕'];
+      for(let i=0;i<26;i++){
+        const d = document.createElement('div');
+        d.className='heart';
+        d.style.left = Math.random()*100 + 'vw';
+        d.style.animationDelay = (Math.random()*12)+'s';
+        d.style.fontSize = (10 + Math.random()*22) + 'px';
+        d.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+        container.appendChild(d);
+      }
+    }
+
+    function runaway(){
+      const btn = $('#noBtn');
+      btn.addEventListener('pointerover', ()=>{
+        trackInteraction('hover', 'No button');
+        const maxX = Math.max(0, innerWidth - btn.offsetWidth - 20);
+        const maxY = Math.max(0, innerHeight - btn.offsetHeight - 20);
+        const x = Math.random()*maxX;
+        const y = Math.random()*maxY;
+        btn.style.position = 'fixed';
+        btn.style.left = x + 'px';
+        btn.style.top  = y + 'px';
+      });
+      btn.addEventListener('click', ()=>{ 
+        trackInteraction('click', 'No button clicked');
+        btn.textContent = 'Okay… maybe later 😶'; 
+      });
+    }
+
+    async function typeLines(){
+      const el = $('#typewriter');
+      for(let i=0; i<LINES.length; i++){
+        const line = LINES[i];
+        await fadeInLine(line, el);
+        await pause(1500);
+        if(i < LINES.length - 1){
+          el.classList.remove('visible');
+          await pause(600);
+        } else {
+          el.classList.add('fadeout');
+          playSoftMusic();
+          await pause(1500);
+          $('.lead').classList.add('visible');
+          $('.card').classList.add('visible');
+        }
+      }
+    }
+
+    async function fadeInLine(text, el){
+      el.classList.remove('visible','fadeout');
+      el.textContent = '';
+      await pause(200);
+      let i = 0;
+      const t = setInterval(()=>{
+        el.textContent = text.slice(0, i++);
+        if(i>text.length){ clearInterval(t); el.classList.add('visible'); }
+      }, 80);
+      await pause(80 * text.length + 600);
+    }
+
+    function setupInvite(){
+      const dlg = $('#invite');
+      const yes = $('#yesBtn');
+      const form = $('#inviteForm');
+      const ok = $('#success');
+
+      yes.addEventListener('click', ()=>{
+        trackInteraction('click', 'Yes button clicked');
+        if(dlg && typeof dlg.showModal === 'function'){
+          dlg.showModal();
+        } else if (dlg) {
+          dlg.setAttribute('open','');
+          dlg.style.display='block';
+        }
+      });
+
+      if(form){
+        form.addEventListener('submit', async (e)=>{
+          e.preventDefault();
+          const place = $('#place').value.trim();
+          const when = $('#when').value;
+          const note = $('#note').value.trim();
+          if(!place || !when) return;
+
+          trackInteraction('submit', 'Meeting form submitted');
+
+          const dt = new Date(when);
+          const nice = dt.toLocaleString(undefined, { dateStyle:'full', timeStyle:'short' });
+          $('#plan').textContent = `${HER_NAME}, let's meet at ${place} on ${nice}. ${note?note:""}`;
+
+          const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
+          $('#maps').href = mapsUrl;
+
+          // Send email notification
+          await sendMeetingResponse(place, when, note);
+
+          form.style.display='none';
+          ok.style.display='block';
+          confetti();
+        });
+      }
+
+      const closeBtn = $('#closeSuccess');
+      if(closeBtn){
+        closeBtn.addEventListener('click', ()=>{
+          trackInteraction('click', 'Close success button');
+          ok.style.display='none';
+          form.style.display='grid';
+          if(dlg){
+            if(typeof dlg.close === 'function') dlg.close();
+            dlg.removeAttribute('open');
+            dlg.style.display='';
+          }
+        });
+      }
+    }
+
+    function confetti(){
+      const c = $('#confetti'); c.style.display='block'; const ctx = c.getContext('2d');
+      const W = c.width = innerWidth, H = c.height = innerHeight;
+      const pieces = Array.from({length:160}, ()=>({ x: Math.random()*W, y: -20 - Math.random()*H, s: 4 + Math.random()*6, v: 1 + Math.random()*3, r: Math.random()*Math.PI }));
+      const start = performance.now(); const dur = 1800;
+      (function frame(t){
+        const p = (t-start)/dur; ctx.clearRect(0,0,W,H);
+        pieces.forEach(o=>{ o.y += o.v*4; o.x += Math.sin(o.y/20); o.r += 0.1; })
+        pieces.forEach(o=>{ ctx.save(); ctx.translate(o.x,o.y); ctx.rotate(o.r); ctx.fillStyle = `hsl(${(o.x/W)*360},90%,60%)`; ctx.fillRect(-o.s/2,-o.s/2,o.s,o.s); ctx.restore(); })
+        if(p<1) requestAnimationFrame(frame); else c.style.display='none';
+      })(start);
+    }
+
+    function playSoftMusic(){
+      const audio = $('#fadeSound');
+      audio.volume = 0.2;
+      const tryPlay = ()=> audio.play().catch(()=>{});
+      tryPlay();
+      document.addEventListener('click', tryPlay, { once:true });
+      document.addEventListener('touchstart', tryPlay, { once:true });
+    }
+
+    // Track all button clicks
+    document.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON') {
+        trackInteraction('click', e.target.textContent);
+      }
+    });
+
+    // Track chip hovers
+    document.querySelectorAll('.chip').forEach(chip => {
+      chip.addEventListener('mouseenter', () => {
+        trackInteraction('hover', 'Chip: ' + chip.textContent);
+      });
+    });
+
+    // Initialize everything
+    (function(){
+      spawnHearts(); 
+      runaway(); 
+      setupInvite(); 
+      typeLines();
+      $('#year').textContent = new Date().getFullYear();
+      
+      // Send visit notification after page loads
+      setTimeout(() => {
+        sendVisitNotification();
+        trackInteraction('visit', 'Page loaded');
+      }, 2000);
+    })();
+  </script>
+</body>
+</html>
