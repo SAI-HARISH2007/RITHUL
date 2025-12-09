@@ -187,19 +187,19 @@
       <p style="text-align:center; color:var(--muted); margin-bottom:20px">Moments I cherish forever</p>
       <div class="gallery">
         <div class="polaroid">
-          <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=400&fit=crop" alt="Memory 1">
+          <img src="images/memory1.jpg" alt="Memory 1">
           <div class="polaroid-caption">That perfect day ♥</div>
         </div>
         <div class="polaroid">
-          <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&h=400&fit=crop" alt="Memory 2">
+          <img src="images/memory2.jpg" alt="Memory 2">
           <div class="polaroid-caption">Your smile ✨</div>
         </div>
         <div class="polaroid">
-          <img src="https://images.unsplash.com/photo-1543716091-a840c05249ec?w=400&h=400&fit=crop" alt="Memory 3">
+          <img src="images/memory3.jpg" alt="Memory 3">
           <div class="polaroid-caption">Together forever 💕</div>
         </div>
         <div class="polaroid">
-          <img src="https://images.unsplash.com/photo-1515552726-c7a7f7e7a4e9?w=400&h=400&fit=crop" alt="Memory 4">
+          <img src="images/memory4.jpg" alt="Memory 4">
           <div class="polaroid-caption">Best moments 🌟</div>
         </div>
       </div>
@@ -300,21 +300,144 @@
       else if (type === 'hover') analytics.hovers++;
     }
 
-    // Screenshot detection
+    // Screenshot detection - Enhanced
     document.addEventListener('keyup', (e) => {
-      // Detect Print Screen, Cmd+Shift+3/4, Windows+Shift+S
-      if (e.key === 'PrintScreen' || (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) || 
-          (e.key === 's' && e.shiftKey && e.metaKey)) {
+      // Detect Print Screen
+      if (e.key === 'PrintScreen') {
         analytics.screenshotAttempts++;
-        trackInteraction('screenshot', 'Screenshot attempt detected');
+        trackInteraction('screenshot', 'PrintScreen key detected');
         sendScreenshotAlert();
       }
     });
 
-    // Detect if page loses focus (possible screenshot on mobile)
+    document.addEventListener('keydown', (e) => {
+      // Mac: Cmd+Shift+3, Cmd+Shift+4, Cmd+Shift+5
+      if (e.metaKey && e.shiftKey && ['3', '4', '5'].includes(e.key)) {
+        analytics.screenshotAttempts++;
+        trackInteraction('screenshot', `Mac screenshot detected: Cmd+Shift+${e.key}`);
+        sendScreenshotAlert();
+      }
+      // Windows: Win+Shift+S (Snipping Tool)
+      if (e.key === 's' && e.shiftKey && (e.metaKey || e.ctrlKey)) {
+        analytics.screenshotAttempts++;
+        trackInteraction('screenshot', 'Windows Snip & Sketch detected');
+        sendScreenshotAlert();
+      }
+      // Windows: Alt+PrintScreen
+      if (e.key === 'PrintScreen' && e.altKey) {
+        analytics.screenshotAttempts++;
+        trackInteraction('screenshot', 'Alt+PrintScreen detected');
+        sendScreenshotAlert();
+      }
+    });
+
+    // Detect if page loses focus (possible screenshot on mobile or desktop)
+    let lastVisibilityChange = Date.now();
     document.addEventListener('visibilitychange', () => {
+      const now = Date.now();
       if (document.hidden) {
         trackInteraction('tab_hidden', 'User switched tab or took screenshot');
+        // If user comes back within 2 seconds, likely took screenshot
+        setTimeout(() => {
+          if (!document.hidden && (Date.now() - lastVisibilityChange) < 2000) {
+            analytics.screenshotAttempts++;
+            trackInteraction('screenshot', 'Quick tab switch detected (likely screenshot)');
+            sendScreenshotAlert();
+          }
+        }, 100);
+      }
+      lastVisibilityChange = now;
+    });
+
+    // Enhanced mobile screenshot detection
+    let isRecording = false;
+    
+    // Detect screen recording (experimental)
+    if (navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+      // Screen recording detection via media devices
+      const originalGetDisplayMedia = navigator.mediaDevices.getDisplayMedia;
+      navigator.mediaDevices.getDisplayMedia = function() {
+        isRecording = true;
+        analytics.screenshotAttempts++;
+        trackInteraction('screen_recording', 'Screen recording detected');
+        sendScreenshotAlert();
+        return originalGetDisplayMedia.apply(this, arguments);
+      };
+    }
+
+    // Detect unusual touch patterns (possible screenshot gesture)
+    let touchCount = 0;
+    let touchTimer;
+    document.addEventListener('touchstart', (e) => {
+      touchCount++;
+      clearTimeout(touchTimer);
+      
+      // Multiple rapid touches might indicate screenshot attempt
+      if (e.touches.length >= 2) {
+        trackInteraction('multi_touch', `${e.touches.length} finger touch detected`);
+      }
+      
+      touchTimer = setTimeout(() => {
+        if (touchCount > 5) {
+          trackInteraction('rapid_touches', `${touchCount} rapid touches - possible screenshot`);
+        }
+        touchCount = 0;
+      }, 1000);
+    });
+
+    // Detect page blur (works on mobile too)
+    let blurCount = 0;
+    let lastBlur = 0;
+    window.addEventListener('blur', () => {
+      const now = Date.now();
+      blurCount++;
+      
+      // If multiple blurs in short time, likely screenshots
+      if (now - lastBlur < 3000) {
+        if (blurCount >= 2) {
+          analytics.screenshotAttempts++;
+          trackInteraction('screenshot', `Multiple page blurs detected (count: ${blurCount})`);
+          sendScreenshotAlert();
+        }
+      } else {
+        blurCount = 1;
+      }
+      lastBlur = now;
+    });
+
+    // Reset blur count after 5 seconds
+    setInterval(() => {
+      if (Date.now() - lastBlur > 5000) blurCount = 0;
+    }, 5000);
+
+    // Detect orientation change (sometimes happens during screenshot)
+    window.addEventListener('orientationchange', () => {
+      trackInteraction('orientation_change', 'Device orientation changed');
+    });
+
+    // Monitor battery status (screenshots can cause battery spike on some devices)
+    if (navigator.getBattery) {
+      navigator.getBattery().then(battery => {
+        let lastLevel = battery.level;
+        battery.addEventListener('levelchange', () => {
+          trackInteraction('battery_change', `Battery: ${Math.round(battery.level * 100)}%`);
+          lastLevel = battery.level;
+        });
+      });
+    }
+
+    // Detect if user copies content
+    document.addEventListener('copy', (e) => {
+      trackInteraction('copy', 'User copied content');
+    });
+    document.addEventListener('contextmenu', (e) => {
+      trackInteraction('right_click', 'Context menu opened');
+    });
+
+    // Detect if user tries to select all (Ctrl+A / Cmd+A)
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        trackInteraction('select_all', 'User tried to select all content');
       }
     });
 
