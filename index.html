@@ -10,21 +10,43 @@
   <style>
     :root{ --bg1:#ffe5f0; --bg2:#fffafc; --ink:#222; --muted:#5b5b5b; --accent:#ff6ea6; --accent2:#845ef7; --card:#ffffffb0; --ring:#ffd1e1; }
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{height:100%; scroll-behavior:smooth}
     body{margin:0; font-family:Poppins, ui-rounded, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; color:var(--ink);
       background:
         radial-gradient(1200px 800px at 80% -10%, var(--bg1), transparent),
         radial-gradient(1200px 800px at -10% 110%, var(--ring), transparent),
         linear-gradient(180deg, var(--bg2), #fff);
-      overflow-x:hidden;}
+      overflow-x:hidden; position:relative;}
 
-    .hearts{position:fixed; inset:0; pointer-events:none; overflow:hidden}
+    /* Cursor particles */
+    .cursor-particle{position:fixed; pointer-events:none; width:20px; height:20px; opacity:0; font-size:18px; animation: particleFloat 1.5s ease-out forwards; z-index:9999}
+    @keyframes particleFloat{
+      0%{transform:translate(0,0) scale(1); opacity:1}
+      100%{transform:translate(var(--tx), var(--ty)) scale(0); opacity:0}
+    }
+
+    /* Hearts background */
+    .hearts{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:0}
     .heart{position:absolute; opacity:.25; animation: floatUp 12s linear infinite;}
     @keyframes floatUp{from{transform:translateY(100vh) scale(.9) rotate(0)} to{transform:translateY(-20vh) scale(1.2) rotate(360deg)}}
 
-    .wrap{max-width:960px; margin:0 auto; padding:24px}
+    /* Enhanced aurora with shimmer */
+    .aurora{position:fixed; inset:0; pointer-events:none; overflow:hidden; z-index:1}
+    .aurora::before, .aurora::after{content:''; position:absolute; width:200%; height:200%; opacity:.2;
+      background: radial-gradient(ellipse at center, var(--accent) 0%, transparent 60%);
+      animation: auroraMove 20s ease-in-out infinite alternate;
+      filter:blur(60px)}
+    .aurora::before{top:-50%; left:-50%; animation-delay:-5s}
+    .aurora::after{bottom:-50%; right:-50%; background: radial-gradient(ellipse at center, var(--accent2) 0%, transparent 60%)}
+    @keyframes auroraMove{
+      0%{transform:translate(0,0) rotate(0deg) scale(1)}
+      50%{transform:translate(30px,30px) rotate(90deg) scale(1.1)}
+      100%{transform:translate(60px,60px) rotate(180deg) scale(1)}
+    }
 
-    header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 20px; backdrop-filter: blur(6px); background:var(--card); border:1px solid #fff; border-radius:22px; box-shadow:0 10px 30px #ff6ea61a; animation: slideDown 0.8s ease-out;}
+    .wrap{max-width:960px; margin:0 auto; padding:24px; position:relative; z-index:2}
+
+    header{display:flex; align-items:center; justify-content:space-between; gap:12px; padding:18px 20px; backdrop-filter: blur(12px); background:var(--card); border:1px solid #fff; border-radius:22px; box-shadow:0 10px 30px #ff6ea61a; animation: slideDown 0.8s ease-out;}
     @keyframes slideDown{from{opacity:0; transform:translateY(-30px)} to{opacity:1; transform:translateY(0)}}
     
     .brand{display:flex; align-items:center; gap:12px}
@@ -34,30 +56,71 @@
     .badge{font-size:12px; padding:6px 10px; border-radius:999px; background:#00000008; animation: pulse 2s ease-in-out infinite;}
     @keyframes pulse{0%,100%{opacity:1} 50%{opacity:0.7}}
 
-    .hero{margin:24px 0; padding:30px; display:grid; gap:18px; background:linear-gradient(180deg,#ffffffcc,#fff); border:1px solid #fff; border-radius:26px; box-shadow:0 40px 80px #845ef70f}
+    .hero{margin:24px 0; padding:30px; display:grid; gap:18px; background:linear-gradient(180deg,#ffffffcc,#fff); border:1px solid #fff; border-radius:26px; box-shadow:0 40px 80px #845ef70f; transform-style:preserve-3d; transition:all 0.3s ease; position:relative}
+    .hero:hover{transform:translateY(-5px) scale(1.01)}
+    .hero::before{content:''; position:absolute; inset:0; border-radius:26px; background:linear-gradient(135deg, rgba(255,110,166,0.1), rgba(132,94,247,0.1)); opacity:0; transition:opacity 0.3s ease; pointer-events:none}
+    .hero:hover::before{opacity:1}
+    
     h1{font-size: clamp(28px, 5vw, 44px); line-height:1.05; margin:0; opacity:0; transition: opacity 1s ease-in-out;}
     h1.visible{opacity:1}
     h1.fadeout{opacity:0; transition: opacity 1.5s ease-in-out}
     .lead{font-size:clamp(15px,2.2vw,18px); color:var(--muted); margin:0; transition:opacity 1.5s ease-in-out; opacity:0}
     .lead.visible{opacity:1}
 
-    .card{padding:20px; border-radius:18px; border:1px solid #fff; background:#ffffffb8; box-shadow:0 20px 50px #0000000a; opacity:0; transition:opacity 1.5s ease-in-out, transform 0.3s ease;}
-    .card.visible{opacity:1}
-    .card:hover{transform:translateY(-5px); box-shadow:0 30px 60px #0000001a}
+    .card{padding:20px; border-radius:18px; border:1px solid #fff; background:#ffffffb8; box-shadow:0 20px 50px #0000000a; opacity:0; transition:all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); transform-style:preserve-3d; position:relative}
+    .card.visible{opacity:1; transform:translateY(0)}
+    .card:not(.visible){transform:translateY(20px)}
+    .card:hover{transform:translateY(-8px) scale(1.02); box-shadow:0 30px 60px #0000001a}
+    .card::after{content:''; position:absolute; inset:0; border-radius:18px; background:linear-gradient(135deg, transparent, rgba(255,255,255,0.5)); opacity:0; transition:opacity 0.3s ease; pointer-events:none}
+    .card:hover::after{opacity:1}
     
     .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center}
-    .chip{padding:8px 12px; border-radius:999px; background:#00000006; font-size:14px; transition: all 0.3s ease;}
-    .chip:hover{background:#00000015; transform:scale(1.05)}
+    .chip{padding:8px 12px; border-radius:999px; background:#00000006; font-size:14px; transition: all 0.3s ease; cursor:default}
+    .chip:hover{background:#00000015; transform:scale(1.05) rotate(2deg)}
 
     .btn{appearance:none; border:0; border-radius:16px; padding:14px 18px; font-weight:700; cursor:pointer; transition:.18s transform ease, .25s box-shadow; background:linear-gradient(180deg, var(--accent), #ff3d83); color:white; box-shadow:0 10px 20px #ff6ea644; position:relative; overflow:hidden;}
     .btn::before{content:''; position:absolute; top:50%; left:50%; width:0; height:0; border-radius:50%; background:rgba(255,255,255,0.3); transform:translate(-50%,-50%); transition:width 0.6s, height 0.6s;}
     .btn:hover::before{width:300px; height:300px;}
-    .btn:hover{transform:translateY(-2px); box-shadow:0 15px 30px #ff6ea666}
-    .btn:active{transform:translateY(0)}
+    .btn:hover{transform:translateY(-2px) scale(1.02); box-shadow:0 15px 30px #ff6ea666}
+    .btn:active{transform:translateY(0) scale(0.98)}
     .btn.secondary{background:#0000000a; color:#333; box-shadow:none; border:1px solid #eee}
 
-    dialog{border:none; border-radius:20px; width:min(560px,94vw); padding:0; box-shadow:0 30px 80px #00000022; background:#fff; animation: modalIn 0.4s ease-out;}
-    @keyframes modalIn{from{opacity:0; transform:scale(0.9)} to{opacity:1; transform:scale(1)}}
+    /* Memory Gallery */
+    .gallery-section{margin:30px 0; opacity:0; transition:opacity 1.5s ease}
+    .gallery-section.visible{opacity:1}
+    .gallery{display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:20px; padding:20px}
+    /* Parallax container for 3D effect */
+    .parallax-container{transform-style:preserve-3d; perspective:1000px; transition:transform 0.1s ease-out}
+
+    /* Enhanced polaroid with 3D */
+    .polaroid{background:#fff; padding:12px 12px 40px; box-shadow:0 8px 30px rgba(0,0,0,.15); border-radius:4px; transform:rotate(0deg); transition:.4s all cubic-bezier(0.34, 1.56, 0.64, 1); cursor:pointer; position:relative; transform-style:preserve-3d}
+    .polaroid:nth-child(1){transform:rotate(-3deg)}
+    .polaroid:nth-child(2){transform:rotate(2deg)}
+    .polaroid:nth-child(3){transform:rotate(-2deg)}
+    .polaroid:nth-child(4){transform:rotate(3deg)}
+    .polaroid:hover{transform:rotate(0deg) scale(1.15) translateY(-15px) translateZ(30px); box-shadow:0 25px 50px rgba(0,0,0,.3); z-index:10}
+    .polaroid::before{content:''; position:absolute; inset:-5px; background:linear-gradient(135deg, rgba(255,110,166,0.2), rgba(132,94,247,0.2)); border-radius:4px; opacity:0; transition:opacity 0.3s ease; z-index:-1}
+    .polaroid:hover::before{opacity:1}
+    .polaroid img{width:100%; height:200px; object-fit:cover; display:block}
+    .polaroid-caption{position:absolute; bottom:10px; left:0; right:0; text-align:center; font-size:14px; color:#666; font-family:'Courier New', monospace}
+
+    /* Scratch Card */
+    .scratch-section{margin:30px 0; opacity:0; transition:opacity 1.5s ease}
+    .scratch-section.visible{opacity:1}
+    .scratch-card{position:relative; width:100%; max-width:400px; height:250px; margin:20px auto; border-radius:20px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.2)}
+    .scratch-canvas{position:absolute; top:0; left:0; width:100%; height:100%; cursor:crosshair; border-radius:20px}
+    .scratch-message{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; padding:30px; background:linear-gradient(135deg, var(--accent), var(--accent2)); color:white; font-size:clamp(18px, 3vw, 24px); font-weight:700; border-radius:20px}
+
+    /* Fireworks */
+    .firework{position:fixed; pointer-events:none; z-index:9999}
+    .firework-particle{position:absolute; width:4px; height:4px; border-radius:50%; animation: explode 1s ease-out forwards}
+    @keyframes explode{
+      0%{transform:translate(0,0); opacity:1}
+      100%{transform:translate(var(--tx), var(--ty)); opacity:0}
+    }
+
+    dialog{border:none; border-radius:20px; width:min(560px,94vw); padding:0; box-shadow:0 30px 80px #00000022; background:#fff; animation: modalIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);}
+    @keyframes modalIn{from{opacity:0; transform:scale(0.8) translateY(-50px)} to{opacity:1; transform:scale(1) translateY(0)}}
     dialog::backdrop{background: radial-gradient(1200px 600px at 50% 10%, #00000040, #00000090); animation: backdropIn 0.3s ease-out;}
     @keyframes backdropIn{from{opacity:0} to{opacity:1}}
     
@@ -66,27 +129,35 @@
     .grid{display:grid; gap:12px}
     .field{display:grid; gap:6px}
     .field input,.field textarea{width:100%; padding:12px 14px; border-radius:12px; border:1px solid #ececec; font:inherit; transition: all 0.3s ease;}
-    .field input:focus,.field textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px #ff6ea622}
+    .field input:focus,.field textarea:focus{outline:none; border-color:var(--accent); box-shadow:0 0 0 3px #ff6ea622; transform:scale(1.02)}
 
     .success{display:none; text-align:center; padding:40px 16px}
     .success h2{font-size:clamp(26px,4vw,40px); margin:0 0 8px}
-    .success p{margin:0}
-
-
+    .success p{margin:8px 0}
 
     footer{margin:30px 0 10px; text-align:center; color:#777; font-size:13px}
     .tiny{opacity:.7}
 
-    @media (max-width:640px){ header{padding:14px} .hero{padding:22px} .row{gap:8px} .btn{width:100%} .interaction-tracker{bottom:10px; right:10px; font-size:11px; padding:8px 12px}}
+    @media (max-width:640px){ 
+      header{padding:14px; flex-direction:column; text-align:center} 
+      .hero{padding:22px} 
+      .row{gap:8px} 
+      .btn{width:100%}
+      .gallery{grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:15px}
+      .polaroid{padding:8px 8px 30px}
+      .polaroid img{height:150px}
+    }
   </style>
 </head>
 <body>
+  <div class="aurora"></div>
   <div class="hearts" aria-hidden="true" id="hearts"></div>
 
+  <div class="wrap">
     <header>
       <div class="brand">
         <div class="logo">💗</div>
-        <h2>My Dearest <span id="herName">Chinni</span></h2>
+        <h2 style="margin:0">My Dearest <span id="herName">Chinni</span></h2>
       </div>
       <div class="badge">From your <strong>Nani</strong> 💞</div>
     </header>
@@ -110,12 +181,50 @@
       <small class="tiny">With love — always from your Nani 💖</small>
     </section>
 
+    <!-- Memory Gallery -->
+    <section class="gallery-section card" id="gallerySection">
+      <h2 style="text-align:center; margin-bottom:10px">Our Beautiful Memories 📸</h2>
+      <p style="text-align:center; color:var(--muted); margin-bottom:20px">Moments I cherish forever</p>
+      <div class="gallery">
+        <div class="polaroid">
+          <img src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?w=400&h=400&fit=crop" alt="Memory 1">
+          <div class="polaroid-caption">That perfect day ♥</div>
+        </div>
+        <div class="polaroid">
+          <img src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=400&h=400&fit=crop" alt="Memory 2">
+          <div class="polaroid-caption">Your smile ✨</div>
+        </div>
+        <div class="polaroid">
+          <img src="https://images.unsplash.com/photo-1543716091-a840c05249ec?w=400&h=400&fit=crop" alt="Memory 3">
+          <div class="polaroid-caption">Together forever 💕</div>
+        </div>
+        <div class="polaroid">
+          <img src="https://images.unsplash.com/photo-1515552726-c7a7f7e7a4e9?w=400&h=400&fit=crop" alt="Memory 4">
+          <div class="polaroid-caption">Best moments 🌟</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Scratch Card -->
+    <section class="scratch-section card" id="scratchSection">
+      <h2 style="text-align:center; margin-bottom:10px">Scratch to Reveal 🎁</h2>
+      <p style="text-align:center; color:var(--muted); margin-bottom:20px">Use your finger or mouse to scratch</p>
+      <div class="scratch-card">
+        <div class="scratch-message">
+          I've been thinking about you all day...<br>
+          You mean the world to me! 💗<br>
+          <small style="font-size:16px; opacity:0.9">- Your Nani</small>
+        </div>
+        <canvas id="scratchCanvas" class="scratch-canvas"></canvas>
+      </div>
+    </section>
+
     <footer>
       <div>© <span id="year"></span> From Nani to Chinni · With kindness and cookies 🍪</div>
     </footer>
   </div>
 
-
+  <!-- Invite Modal -->
   <dialog id="invite">
     <div class="modal">
       <form method="dialog" class="grid" id="inviteForm">
@@ -135,23 +244,23 @@
           </label>
         </div>
         <div class="row" style="justify-content:flex-end; gap:8px">
-          <button class="btn secondary" value="cancel">Cancel</button>
-          <button class="btn" id="confirmBtn" value="default">Send invite</button>
+          <button class="btn secondary" type="button" id="cancelBtn">Cancel</button>
+          <button class="btn" type="submit">Send invite</button>
         </div>
       </form>
 
       <div class="success" id="success">
         <h2>Yay! See you soon 🎉</h2>
         <p id="plan"></p>
-        <p><a id="maps" href="#" target="_blank" rel="noreferrer noopener">Open in Maps</a></p>
-        <div class="row" style="justify-content:center">
+        <p><a id="maps" href="#" target="_blank" rel="noreferrer noopener" style="color:var(--accent)">📍 Open in Maps</a></p>
+        <div class="row" style="justify-content:center; margin-top:20px">
           <button class="btn secondary" id="closeSuccess">Close</button>
         </div>
       </div>
     </div>
   </dialog>
 
-  <canvas id="confetti" style="position:fixed; inset:0; pointer-events:none; display:none"></canvas>
+  <canvas id="confetti" style="position:fixed; inset:0; pointer-events:none; display:none; z-index:9998"></canvas>
 
   <!-- Soft music -->
   <audio id="fadeSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_4a9e4c548a.mp3?filename=soft-piano-melody-10911.mp3" preload="auto" loop></audio>
@@ -159,7 +268,7 @@
   <script>
     const HER_NAME = "Chinni";
     const YOUR_EMAIL = "saiharishanand2007@gmail.com";
-    const API_ENDPOINT = "send_email.php"; // Place PHP file in same directory
+    const API_ENDPOINT = "send_email.php";
     
     const LINES = [
       `Heyy, ${HER_NAME} ✨`,
@@ -175,7 +284,9 @@
       clicks: 0,
       hovers: 0,
       startTime: Date.now(),
-      interactions: []
+      interactions: [],
+      screenshotAttempts: 0,
+      scratchProgress: 0
     };
 
     function trackInteraction(type, detail = '') {
@@ -185,40 +296,103 @@
         timestamp: new Date().toISOString()
       });
       
-      if (type === 'click') {
-        analytics.clicks++;
-      } else if (type === 'hover') {
-        analytics.hovers++;
+      if (type === 'click') analytics.clicks++;
+      else if (type === 'hover') analytics.hovers++;
+    }
+
+    // Screenshot detection
+    document.addEventListener('keyup', (e) => {
+      // Detect Print Screen, Cmd+Shift+3/4, Windows+Shift+S
+      if (e.key === 'PrintScreen' || (e.metaKey && e.shiftKey && (e.key === '3' || e.key === '4' || e.key === '5')) || 
+          (e.key === 's' && e.shiftKey && e.metaKey)) {
+        analytics.screenshotAttempts++;
+        trackInteraction('screenshot', 'Screenshot attempt detected');
+        sendScreenshotAlert();
+      }
+    });
+
+    // Detect if page loses focus (possible screenshot on mobile)
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        trackInteraction('tab_hidden', 'User switched tab or took screenshot');
+      }
+    });
+
+    // Send screenshot alert
+    async function sendScreenshotAlert() {
+      try {
+        await fetch(API_ENDPOINT, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            type: 'screenshot',
+            timestamp: new Date().toLocaleString(),
+            screenshotCount: analytics.screenshotAttempts
+          })
+        });
+      } catch (error) {
+        console.log('Screenshot alert failed:', error);
       }
     }
 
-    // Update timer silently
-    setInterval(() => {
-      const seconds = Math.floor((Date.now() - analytics.startTime) / 1000);
-    }, 1000);
+    // Enhanced cursor particle effect with more particles
+    let particleTimeout;
+    document.addEventListener('mousemove', (e) => {
+      if (Math.random() > 0.85) {
+        const particle = document.createElement('div');
+        particle.className = 'cursor-particle';
+        particle.textContent = ['💕','💗','💖','✨','💫','🌟','⭐'][Math.floor(Math.random()*7)];
+        particle.style.left = e.pageX + 'px';
+        particle.style.top = e.pageY + 'px';
+        particle.style.setProperty('--tx', (Math.random()-0.5)*100 + 'px');
+        particle.style.setProperty('--ty', (Math.random()-0.5)*100 + 'px');
+        document.body.appendChild(particle);
+        setTimeout(() => particle.remove(), 1500);
+      }
+      
+      // 3D Parallax effect on mouse move
+      clearTimeout(particleTimeout);
+      particleTimeout = setTimeout(() => {
+        const container = $('#mainContainer');
+        if (container) {
+          const rect = container.getBoundingClientRect();
+          const x = (e.clientX - rect.left) / rect.width;
+          const y = (e.clientY - rect.top) / rect.height;
+          const tiltX = (y - 0.5) * 5; // Max 5 degrees
+          const tiltY = (x - 0.5) * -5;
+          container.style.transform = `perspective(1000px) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
+        }
+      }, 50);
+    });
 
-    function showNotification(message, isError = false) {
-      // Silently track - no visible notification
-    }
+    // Reset parallax when mouse leaves
+    document.addEventListener('mouseleave', () => {
+      const container = $('#mainContainer');
+      if (container) {
+        container.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg)';
+      }
+    });
 
     // Send visit notification
     async function sendVisitNotification() {
+      const now = new Date();
       const screenInfo = {
         width: window.innerWidth,
         height: window.innerHeight,
         screenWidth: window.screen.width,
         screenHeight: window.screen.height,
         userAgent: navigator.userAgent,
-        timestamp: new Date().toLocaleString(),
-        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+        timestamp: now.toLocaleString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        visitDate: now.toLocaleDateString(),
+        visitTime: now.toLocaleTimeString(),
+        fullDateTime: now.toString()
       };
 
       try {
         const response = await fetch(API_ENDPOINT, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             type: 'visit',
             screenWidth: screenInfo.width,
@@ -227,16 +401,16 @@
             deviceHeight: screenInfo.screenHeight,
             userAgent: screenInfo.userAgent,
             timestamp: screenInfo.timestamp,
-            timezone: screenInfo.timezone
+            timezone: screenInfo.timezone,
+            visitDate: screenInfo.visitDate,
+            visitTime: screenInfo.visitTime,
+            fullDateTime: screenInfo.fullDateTime
           })
         });
 
         const data = await response.json();
-        
         if (data.success) {
           console.log('✅ Visit notification sent!');
-        } else {
-          console.log('Email error:', data.message);
         }
       } catch (error) {
         console.log('Failed to send notification:', error);
@@ -248,9 +422,7 @@
       try {
         const response = await fetch(API_ENDPOINT, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
             type: 'meeting',
             place: place,
@@ -260,16 +432,15 @@
             hovers: analytics.hovers,
             timeSpent: Math.floor((Date.now() - analytics.startTime) / 1000),
             screenSize: `${window.innerWidth}x${window.innerHeight}`,
-            userAgent: navigator.userAgent
+            userAgent: navigator.userAgent,
+            scratchProgress: Math.round(analytics.scratchProgress),
+            screenshotAttempts: analytics.screenshotAttempts
           })
         });
 
         const data = await response.json();
-        
         if (data.success) {
           console.log('✅ Meeting response sent!');
-        } else {
-          console.log('Email error:', data.message);
         }
       } catch (error) {
         console.log('Failed to send meeting response:', error);
@@ -322,7 +493,12 @@
           playSoftMusic();
           await pause(1500);
           $('.lead').classList.add('visible');
+          await pause(500);
           $('.card').classList.add('visible');
+          await pause(800);
+          $('#gallerySection').classList.add('visible');
+          await pause(800);
+          $('#scratchSection').classList.add('visible');
         }
       }
     }
@@ -344,6 +520,7 @@
       const yes = $('#yesBtn');
       const form = $('#inviteForm');
       const ok = $('#success');
+      const cancelBtn = $('#cancelBtn');
 
       yes.addEventListener('click', ()=>{
         trackInteraction('click', 'Yes button clicked');
@@ -353,6 +530,10 @@
           dlg.setAttribute('open','');
           dlg.style.display='block';
         }
+      });
+
+      cancelBtn.addEventListener('click', () => {
+        if(dlg && typeof dlg.close === 'function') dlg.close();
       });
 
       if(form){
@@ -372,12 +553,12 @@
           const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place)}`;
           $('#maps').href = mapsUrl;
 
-          // Send email notification
           await sendMeetingResponse(place, when, note);
 
           form.style.display='none';
           ok.style.display='block';
           confetti();
+          fireworks();
         });
       }
 
@@ -387,31 +568,168 @@
           trackInteraction('click', 'Close success button');
           ok.style.display='none';
           form.style.display='grid';
-          if(dlg){
-            if(typeof dlg.close === 'function') dlg.close();
-            dlg.removeAttribute('open');
-            dlg.style.display='';
-          }
+          if(dlg && typeof dlg.close === 'function') dlg.close();
         });
       }
     }
 
+    // Scratch card functionality
+    function initScratchCard(){
+      const canvas = $('#scratchCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+
+      // Draw scratch surface
+      const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+      gradient.addColorStop(0, '#c084fc');
+      gradient.addColorStop(1, '#db2777');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.fillStyle = 'white';
+      ctx.font = 'bold 24px Poppins';
+      ctx.textAlign = 'center';
+      ctx.fillText('Scratch here 💕', canvas.width/2, canvas.height/2);
+
+      let isScratching = false;
+      let totalPixels = canvas.width * canvas.height;
+      let clearedPixels = 0;
+
+      function scratch(x, y){
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        x = (x - rect.left) * scaleX;
+        y = (y - rect.top) * scaleY;
+
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Calculate scratch progress
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        clearedPixels = 0;
+        for(let i = 3; i < imgData.data.length; i += 4){
+          if(imgData.data[i] === 0) clearedPixels++;
+        }
+        analytics.scratchProgress = (clearedPixels / totalPixels) * 100;
+
+        if(analytics.scratchProgress > 60 && !canvas.dataset.revealed){
+          canvas.dataset.revealed = 'true';
+          trackInteraction('scratch_complete', 'Scratch card revealed');
+          canvas.style.opacity = '0';
+          setTimeout(() => canvas.style.display = 'none', 300);
+        }
+      }
+
+      canvas.addEventListener('mousedown', (e) => {
+        isScratching = true;
+        scratch(e.clientX, e.clientY);
+        trackInteraction('scratch_start', 'Started scratching');
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if(isScratching) scratch(e.clientX, e.clientY);
+      });
+
+      canvas.addEventListener('mouseup', () => isScratching = false);
+      canvas.addEventListener('mouseleave', () => isScratching = false);
+
+      // Touch support
+      canvas.addEventListener('touchstart', (e) => {
+        isScratching = true;
+        const touch = e.touches[0];
+        scratch(touch.clientX, touch.clientY);
+        trackInteraction('scratch_start', 'Started scratching (touch)');
+      });
+
+      canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        if(isScratching){
+          const touch = e.touches[0];
+          scratch(touch.clientX, touch.clientY);
+        }
+      });
+
+      canvas.addEventListener('touchend', () => isScratching = false);
+    }
+
     function confetti(){
-      const c = $('#confetti'); c.style.display='block'; const ctx = c.getContext('2d');
-      const W = c.width = innerWidth, H = c.height = innerHeight;
-      const pieces = Array.from({length:160}, ()=>({ x: Math.random()*W, y: -20 - Math.random()*H, s: 4 + Math.random()*6, v: 1 + Math.random()*3, r: Math.random()*Math.PI }));
-      const start = performance.now(); const dur = 1800;
+      const c = $('#confetti'); 
+      c.style.display='block'; 
+      const ctx = c.getContext('2d');
+      const W = c.width = innerWidth;
+      const H = c.height = innerHeight;
+      const pieces = Array.from({length:160}, ()=>({ 
+        x: Math.random()*W, 
+        y: -20 - Math.random()*H, 
+        s: 4 + Math.random()*6, 
+        v: 1 + Math.random()*3, 
+        r: Math.random()*Math.PI,
+        rv: (Math.random()-0.5)*0.2
+      }));
+      const start = performance.now(); 
+      const dur = 3000;
+      
       (function frame(t){
-        const p = (t-start)/dur; ctx.clearRect(0,0,W,H);
-        pieces.forEach(o=>{ o.y += o.v*4; o.x += Math.sin(o.y/20); o.r += 0.1; })
-        pieces.forEach(o=>{ ctx.save(); ctx.translate(o.x,o.y); ctx.rotate(o.r); ctx.fillStyle = `hsl(${(o.x/W)*360},90%,60%)`; ctx.fillRect(-o.s/2,-o.s/2,o.s,o.s); ctx.restore(); })
-        if(p<1) requestAnimationFrame(frame); else c.style.display='none';
+        const p = (t-start)/dur; 
+        ctx.clearRect(0,0,W,H);
+        pieces.forEach(o=>{ 
+          o.y += o.v*4; 
+          o.x += Math.sin(o.y/20)*2; 
+          o.r += o.rv;
+        });
+        pieces.forEach(o=>{ 
+          ctx.save(); 
+          ctx.translate(o.x,o.y); 
+          ctx.rotate(o.r); 
+          ctx.fillStyle = `hsl(${(o.x/W)*360},90%,60%)`; 
+          ctx.fillRect(-o.s/2,-o.s/2,o.s,o.s); 
+          ctx.restore(); 
+        });
+        if(p<1) requestAnimationFrame(frame); 
+        else c.style.display='none';
       })(start);
+    }
+
+    function fireworks(){
+      const colors = ['#ff6ea6','#845ef7','#4dabf7','#51cf66','#ffd43b'];
+      for(let i=0; i<5; i++){
+        setTimeout(() => {
+          const x = Math.random() * innerWidth;
+          const y = Math.random() * innerHeight * 0.5;
+          createFirework(x, y, colors[i % colors.length]);
+        }, i * 400);
+      }
+    }
+
+    function createFirework(x, y, color){
+      const container = document.createElement('div');
+      container.className = 'firework';
+      container.style.left = x + 'px';
+      container.style.top = y + 'px';
+      document.body.appendChild(container);
+
+      for(let i=0; i<30; i++){
+        const particle = document.createElement('div');
+        particle.className = 'firework-particle';
+        particle.style.background = color;
+        const angle = (Math.PI * 2 * i) / 30;
+        const velocity = 50 + Math.random() * 50;
+        particle.style.setProperty('--tx', Math.cos(angle) * velocity + 'px');
+        particle.style.setProperty('--ty', Math.sin(angle) * velocity + 'px');
+        container.appendChild(particle);
+      }
+
+      setTimeout(() => container.remove(), 1000);
     }
 
     function playSoftMusic(){
       const audio = $('#fadeSound');
-      audio.volume = 0.2;
+      audio.volume = 0.15;
       const tryPlay = ()=> audio.play().catch(()=>{});
       tryPlay();
       document.addEventListener('click', tryPlay, { once:true });
@@ -432,12 +750,20 @@
       });
     });
 
+    // Track polaroid clicks
+    document.querySelectorAll('.polaroid').forEach((polaroid, index) => {
+      polaroid.addEventListener('click', () => {
+        trackInteraction('click', `Viewed memory photo ${index + 1}`);
+      });
+    });
+
     // Initialize everything
     (function(){
       spawnHearts(); 
       runaway(); 
       setupInvite(); 
       typeLines();
+      initScratchCard();
       $('#year').textContent = new Date().getFullYear();
       
       // Send visit notification after page loads

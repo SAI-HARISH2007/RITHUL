@@ -23,16 +23,15 @@ $type = $input['type'];
 $timestamp = date('Y-m-d H:i:s');
 $user_ip = $_SERVER['REMOTE_ADDR'] ?? 'Unknown';
 
-$to = 'kotamsatyarithul@gmail.com';
+$to = 'saiharishanand2007@gmail.com';
 $from = 'noreply@' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
 
 if ($type === 'visit') {
-    $subject = '🔔 Someone opened your "For Chinni" site!';
+    $subject = '🔔 Chinni opened your site!';
     $message = "
-
 🎉 SITE VISIT ALERT! 🎉
 
-Someone just opened your special \"For Chinni\" website!
+Chinni just opened your special \"For Chinni\" website!
 
 🕐 EXACT TIME SHE OPENED IT:
 - Date: {$input['visitDate']}
@@ -47,7 +46,7 @@ Someone just opened your special \"For Chinni\" website!
 - IP Address: {$user_ip}
 
 📊 BROWSER INFO:
-- " . substr($input['userAgent'], 0, 150) . "
+- " . substr($input['userAgent'], 0, 200) . "
 
 Hope it's your Chinni! 💕
 
@@ -58,7 +57,6 @@ Automated notification from your \"For Chinni\" site
 } else if ($type === 'meeting') {
     $subject = '💝 AMAZING! Chinni wants to meet you!';
     $message = "
-
 🎉 CONGRATULATIONS! 🎉
 
 Chinni has accepted your meeting invitation!
@@ -72,6 +70,8 @@ Chinni has accepted your meeting invitation!
 - Total Clicks: {$input['clicks']}
 - Total Hovers: {$input['hovers']}
 - Time Spent: {$input['timeSpent']} seconds
+- Scratch Card Progress: {$input['scratchProgress']}%
+- Screenshot Attempts: {$input['screenshotAttempts']}
 
 🌐 DEVICE INFO:
 - Screen Size: {$input['screenSize']}
@@ -82,6 +82,25 @@ Chinni has accepted your meeting invitation!
 
 ---
 Response from your \"For Chinni\" site
+    ";
+
+} else if ($type === 'screenshot') {
+    $subject = '📸 Screenshot Alert!';
+    $message = "
+⚠️ SCREENSHOT DETECTED! ⚠️
+
+Someone attempted to take a screenshot of your site!
+
+🕐 TIME:
+- {$input['timestamp']}
+
+📊 DETAILS:
+- Total Screenshot Attempts: {$input['screenshotCount']}
+
+This could mean Chinni is sharing it with friends or saving it! 💕
+
+---
+Alert from your \"For Chinni\" site
     ";
 
 } else {
@@ -101,8 +120,17 @@ $headers = [
 
 $success = mail($to, $subject, $message, implode("\r\n", $headers));
 
-// Log to file with detailed time
-$log_entry = "[$timestamp] Type: $type | IP: $user_ip | Visit Time: " . ($input['visitTime'] ?? 'N/A') . " | Success: " . ($success ? 'YES' : 'NO') . "\n";
+// Log to file with detailed information
+$log_entry = "[$timestamp] Type: $type | IP: $user_ip";
+if ($type === 'visit') {
+    $log_entry .= " | Visit Time: {$input['visitTime']}";
+} else if ($type === 'meeting') {
+    $log_entry .= " | Place: {$input['place']} | Clicks: {$input['clicks']}";
+} else if ($type === 'screenshot') {
+    $log_entry .= " | Screenshot Count: {$input['screenshotCount']}";
+}
+$log_entry .= " | Success: " . ($success ? 'YES' : 'NO') . "\n";
+
 file_put_contents('chinni_activity.log', $log_entry, FILE_APPEND | LOCK_EX);
 
 echo json_encode([
@@ -112,3 +140,13 @@ echo json_encode([
 ]);
 
 ?>
+```
+
+---
+
+## 📁 **Complete Project Structure:**
+```
+your-project/
+├── index.html          ✅ (Complete - ready to use!)
+├── send_email.php      ✅ (Complete - save the code above)
+└── chinni_activity.log (Auto-created when site is used)
